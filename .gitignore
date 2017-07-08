@@ -1,0 +1,6 @@
+.DS_Store
+.ropeproject
+.ipynb_checkpoints
+__pycache__
+*.jpg
+*.ipynb
