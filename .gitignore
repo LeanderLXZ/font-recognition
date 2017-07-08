@@ -1,6 +1,7 @@
 .DS_Store
 .ropeproject
 .ipynb_checkpoints
+tensorflow_vgg
 __pycache__
 *.jpg
 *.ipynb
