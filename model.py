@@ -9,12 +9,12 @@ from sklearn.model_selection import StratifiedShuffleSplit
 
 epochs = 100
 batch_size = 256
-learning_rate = 0.00002
+learning_rate = 0.00005
 keep_prob = 0.5
 iteration_print = 10
 
 
-# read codes and labels from file
+# Read codes and labels from file
 
 with open('labels') as f:
     reader = csv.reader(f, delimiter='\n')
@@ -35,13 +35,13 @@ labels_vecs = encoder.transform(labels)
 
 # Shuffle and split dataset
 
-ss_train = StratifiedShuffleSplit(n_splits=1, test_size=0.2)
+ss_train = StratifiedShuffleSplit(n_splits=10, test_size=0.2)
 train_idx, test_idx = next(ss_train.split(codes, labels))
 
 train_x, train_y = codes[train_idx], labels_vecs[train_idx]
 test_x, test_y = codes[test_idx], labels_vecs[test_idx]
 
-ss_test = StratifiedShuffleSplit(n_splits=1, test_size=0.5)
+ss_test = StratifiedShuffleSplit(n_splits=10, test_size=0.5)
 val_idx, test_idx = next(ss_test.split(test_x, test_y))
 
 val_x, val_y = test_x[val_idx], test_y[val_idx]
@@ -63,13 +63,13 @@ fc1 = tf.contrib.layers.fully_connected(inputs_,
 fc1 = tf.nn.dropout(fc1, keep_prob=keep_prob)
 
 fc2 = tf.contrib.layers.fully_connected(fc1,
-                                        1024,
+                                        512,
                                         weights_initializer=tf.truncated_normal_initializer(stddev=0.1),
                                         biases_initializer=tf.zeros_initializer())
 fc2 = tf.nn.dropout(fc2, keep_prob=keep_prob)
 
 fc3 = tf.contrib.layers.fully_connected(fc2,
-                                        1024,
+                                        256,
                                         weights_initializer=tf.truncated_normal_initializer(stddev=0.1),
                                         biases_initializer=tf.zeros_initializer())
 fc3 = tf.nn.dropout(fc3, keep_prob=keep_prob)
@@ -91,7 +91,7 @@ accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 
 # Get batches
 
-def get_batches(x, y, n_batches=10):
+def get_batches(x, y, n_batches):
     """ Return a generator that yields batches from arrays x and y. """
     batch_size = len(x)//n_batches
 
@@ -117,18 +117,17 @@ with tf.Session() as sess:
 
     # TODO: Your training code here
     for i in range(epochs):
-        for batch_x, batch_y in get_batches(codes, labels_vecs, batch_size):
-            loss, _ = sess.run([cost, optimizer], feed_dict={inputs_: batch_x,
-                                                             labels_: batch_y})
+        for batch_x, batch_y in get_batches(train_x, train_y, batch_size):
+            loss, train_acc, _ = sess.run([cost, accuracy, optimizer],
+                                       feed_dict={inputs_: batch_x,
+                                                  labels_: batch_y})
 
             if iteration % iteration_print == 0:
-                acc = sess.run(accuracy, feed_dict={inputs_: val_x,
-                                                    labels_: val_y})
+                val_acc = sess.run(accuracy, feed_dict={inputs_: val_x,
+                                                        labels_: val_y})
 
-                print('Epochs: {:>3} | Iteration: {:>5} | Loss: {:>9.4f} | Val_acc: {:.2f}%'.format(i+1,
-                                                                                                  iteration,
-                                                                                                  loss,
-                                                                                                  acc * 100))
+                print('Epochs: {:>3} | Iteration: {:>5} | Loss: {:>9.4f} | Train_acc: {:>6.2f}% | Val_acc: {:.2f}%'
+                      .format(i+1, iteration, loss, train_acc * 100, val_acc * 100))
 
             iteration += 1
 
