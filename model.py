@@ -7,9 +7,9 @@ from sklearn.model_selection import StratifiedShuffleSplit
 
 # Hyperparameters
 
-epochs = 100
-batch_size = 256
-learning_rate = 0.00005
+epochs = 10
+batch_size = 512
+learning_rate = 0.001
 keep_prob = 0.5
 iteration_print = 10
 
