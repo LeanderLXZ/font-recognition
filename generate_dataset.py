@@ -45,5 +45,5 @@ for font_class in font_classes:
                 x_end = x_start + 269
                 img_slipt = img[y_start:y_end, x_start:x_end, :]
                 img_s = Image.fromarray(np.uint8(img_slipt))
-                img_s = img_s.resize((224, 224))
+                #  img_s = img_s.resize((224, 224))
                 img_s.save(save_dir + "/{}_{}_{}.jpg".format(e - 30, i, j))
