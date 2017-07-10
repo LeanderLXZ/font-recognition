@@ -30,8 +30,19 @@ The images of fonts should be in the `./data/img/` directory.
 
 Now you can run through all the images dataset and get codes of VGGNet for each of them using `get_vgg_codes.py`.
 
-Codes and corresponding lables will be written to `vgg_codes` and `labels` files.
+Data will be spilt into 3 parts for training, validation and testing. Codes and corresponding lables will be written to pickle files:
+
+* train_x.p
+* train_y.p
+* val_x.p
+* val_y.p
+* test_x.p
+* test_y.p
 
 ### Train the Model
 
 Run `model.py` to train the model.
+
+### Test the Model
+
+Run `test_model.py` to test the model.
