@@ -1,9 +1,11 @@
 import os
-import csv
+import pickle
 import numpy as np
 import tensorflow as tf
 from tensorflow_vgg import vgg16
 from PIL import Image
+from sklearn.preprocessing import LabelBinarizer
+from sklearn.model_selection import StratifiedShuffleSplit
 
 
 batch_size = 100
@@ -63,12 +65,49 @@ with tf.Session() as sess:
                 print('{} images processed'.format(ii))
 
 
-# write vgg codes to file
-with open('vgg_codes', 'w') as f:
-    vgg_codes.tofile(f)
+# Preprocess Data
+
+# One-hot Encode
+
+lb = LabelBinarizer()
+lb.fit(labels)
+
+labels_vecs = lb.transform(labels)
 
 
-# write labels to file
-with open('labels', 'w') as f:
-    writer = csv.writer(f, delimiter='\n')
-    writer.writerow(labels)
+# Shuffle and split dataset
+
+ss_train = StratifiedShuffleSplit(n_splits=10, test_size=0.2)
+train_idx, test_idx = next(ss_train.split(vgg_codes, labels))
+
+train_x, train_y = vgg_codes[train_idx], labels_vecs[train_idx]
+test_x, test_y = vgg_codes[test_idx], labels_vecs[test_idx]
+
+ss_test = StratifiedShuffleSplit(n_splits=10, test_size=0.5)
+val_idx, test_idx = next(ss_test.split(test_x, test_y))
+
+val_x, val_y = test_x[val_idx], test_y[val_idx]
+test_x, test_y = test_x[test_idx], test_y[test_idx]
+
+
+# Save data
+
+with open('train_x.p', 'wb') as f:
+    pickle.dump(train_x, f)
+
+with open('train_y.p', 'wb') as f:
+    pickle.dump(train_y, f)
+
+with open('val_x.p', 'wb') as f:
+    pickle.dump(val_x, f)
+
+with open('val_y.p', 'wb') as f:
+    pickle.dump(val_y, f)
+
+with open('test_x.p', 'wb') as f:
+    pickle.dump(test_x, f)
+
+with open('test_y.p', 'wb') as f:
+    pickle.dump(test_y, f)
+
+print('Codes and labels saved.')

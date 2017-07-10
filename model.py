@@ -1,8 +1,6 @@
-import csv
 import numpy as np
 import tensorflow as tf
-from sklearn.preprocessing import LabelBinarizer
-from sklearn.model_selection import StratifiedShuffleSplit
+import pickle
 
 
 # Hyperparameters
@@ -16,42 +14,31 @@ iteration_print = 10
 
 # Read codes and labels from file
 
-with open('labels') as f:
-    reader = csv.reader(f, delimiter='\n')
-    labels = np.array([each for each in reader if len(each) > 0]).squeeze()
+print('Loading codes and labels...')
 
-with open('vgg_codes') as f:
-    codes = np.fromfile(f, dtype=np.float32)
-    codes = codes.reshape((len(labels), -1))
+with open('train_x.p', 'rb') as f:
+    train_x = pickle.load(f)
 
+with open('train_y.p', 'rb') as f:
+    train_y = pickle.load(f)
 
-# Data preprocess
+with open('val_x.p', 'rb') as f:
+    val_x = pickle.load(f)
 
-# One-hot encoding
-encoder = LabelBinarizer()
-encoder.fit(labels)
+with open('val_y.p', 'rb') as f:
+    val_y = pickle.load(f)
 
-labels_vecs = encoder.transform(labels)
+with open('test_x.p', 'rb') as f:
+    test_x = pickle.load(f)
 
-# Shuffle and split dataset
-
-ss_train = StratifiedShuffleSplit(n_splits=10, test_size=0.2)
-train_idx, test_idx = next(ss_train.split(codes, labels))
-
-train_x, train_y = codes[train_idx], labels_vecs[train_idx]
-test_x, test_y = codes[test_idx], labels_vecs[test_idx]
-
-ss_test = StratifiedShuffleSplit(n_splits=10, test_size=0.5)
-val_idx, test_idx = next(ss_test.split(test_x, test_y))
-
-val_x, val_y = test_x[val_idx], test_y[val_idx]
-test_x, test_y = test_x[test_idx], test_y[test_idx]
+with open('test_y.p', 'rb') as f:
+    test_y = pickle.load(f)
 
 
 # Inputs
 
-inputs_ = tf.placeholder(tf.float32, shape=[None, codes.shape[1]])
-labels_ = tf.placeholder(tf.int64, shape=[None, labels_vecs.shape[1]])
+inputs_ = tf.placeholder(tf.float32, shape=[None, train_x.shape[1]], name='inputs')
+labels_ = tf.placeholder(tf.int64, shape=[None, train_y.shape[1]], name='labels')
 
 
 # Classifier
@@ -75,7 +62,7 @@ fc3 = tf.contrib.layers.fully_connected(fc2,
 fc3 = tf.nn.dropout(fc3, keep_prob=keep_prob)
 
 logits = tf.contrib.layers.fully_connected(fc3,
-                                           labels_vecs.shape[1],
+                                           train_y.shape[1],
                                            activation_fn=None)
 
 cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=labels_, logits=logits))
@@ -86,7 +73,7 @@ optimizer = tf.train.AdamOptimizer(learning_rate).minimize(cost)
 
 predicted = tf.nn.softmax(logits)
 correct_pred = tf.equal(tf.argmax(predicted, 1), tf.argmax(labels_, 1))
-accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
+accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32), name='accuracy')
 
 
 # Get batches
