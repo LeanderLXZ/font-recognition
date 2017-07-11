@@ -26,7 +26,7 @@ with tf.Session() as sess:
 
     # Build the vgg network
     vgg = vgg16.Vgg16()
-    input_ = tf.placeholder(tf.float32, [None, 244, 244, 3])
+    input_ = tf.placeholder(tf.float32, [None, 224, 224, 3])
 
     with tf.name_scope("content_vgg"):
         vgg.build(input_)
