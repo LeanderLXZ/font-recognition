@@ -22,40 +22,14 @@ batch = []
 vgg_codes = None
 
 
-def pre_process_image(inputs):
-
-    img_batch = tf.Variable(tf.float32, [None, 224, 224, 3])
-
-    for i in range(len(inputs)):
-        # Randomly crop the input image.
-        image = inputs[i]
-        image = tf.random_crop(image, size=[224, 224, 3])
-
-        # Randomly flip the image horizontally.
-        image = tf.image.random_flip_left_right(image)
-
-        # Randomly adjust hue, contrast and saturation.
-        image = tf.image.random_hue(image, max_delta=0.05)
-        image = tf.image.random_contrast(image, lower=0.3, upper=1.0)
-        image = tf.image.random_brightness(image, max_delta=0.2)
-        image = tf.image.random_saturation(image, lower=0.0, upper=2.0)
-
-        image_reshaped = tf.reshape(image, [1, 224, 224, 3])
-
-        img_batch = tf.concat(0, [img_batch, image_reshaped])
-
-    return img_batch
-
-
 with tf.Session() as sess:
 
     # Build the vgg network
     vgg = vgg16.Vgg16()
-    input_ = tf.placeholder(tf.float32, [None, None, None, 3])
-    img_input_ = pre_process_image(input_)
+    input_ = tf.placeholder(tf.float32, [None, 244, 244, 3])
 
     with tf.name_scope("content_vgg"):
-        vgg.build(img_input_)
+        vgg.build(input_)
 
     for font in font_classes:
         print("Starting {} images".format(font))
