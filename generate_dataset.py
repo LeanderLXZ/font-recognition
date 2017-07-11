@@ -76,6 +76,6 @@ with tf.Session() as sess:
 
                     img_p = sess.run(image_p_, {image_:img_split})
 
-                    img_s = Image.fromarray(np.uint8(img_p.eval())
+                    img_s = Image.fromarray(np.uint8(img_p))
                     #  img_s = img_s.resize((224, 224))
                     img_s.save(save_dir + "/{}_{}_{}.jpg".format(e - 30, i, j))
