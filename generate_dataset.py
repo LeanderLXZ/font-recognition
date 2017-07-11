@@ -72,10 +72,7 @@ with tf.Session() as sess:
                     x_end = x_start + 269
                     img_split = img[y_start:y_end, x_start:x_end, :]
 
-                    #  img = tf.cast(tf.convert_to_tensor(img_split.eval()), tf.float32)
-
                     img_p = sess.run(image_p_, {image_:img_split})
 
                     img_s = Image.fromarray(np.uint8(img_p))
-                    #  img_s = img_s.resize((224, 224))
                     img_s.save(save_dir + "/{}_{}_{}.jpg".format(e - 30, i, j))
