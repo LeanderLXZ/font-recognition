@@ -4,7 +4,7 @@ import pickle
 
 # Version
 
-version = '1.0'
+version = '1.1'
 
 
 # Hyperparameters
@@ -127,13 +127,13 @@ with tf.Session() as sess:
                                                          feed_dict={inputs_: batch_x,
                                                          labels_: batch_y})
 
-            train_writer.add_summary(summary_train, i)
+            train_writer.add_summary(summary_train, iteration)
 
             if iteration % iteration_print == 0:
                 summary_val, val_acc = sess.run([merged, accuracy], feed_dict={inputs_: val_x,
                                                                                labels_: val_y})
 
-                val_writer.add_summary(summary_val, i)
+                val_writer.add_summary(summary_val, iteration)
 
                 print('Epochs: {:>3} | Iteration: {:>5} | Loss: {:>9.4f} | Train_acc: {:>6.2f}% | Val_acc: {:.2f}%'
                       .format(i+1, iteration, loss, train_acc * 100, val_acc * 100))
