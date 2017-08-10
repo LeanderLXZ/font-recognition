@@ -1,10 +1,10 @@
 import tensorflow as tf
 import pickle
-
+import math
 
 # Version
 
-version = '1.1'
+version = '2.0'
 
 
 # Hyperparameters
@@ -50,19 +50,22 @@ labels_ = tf.placeholder(tf.int64, shape=[None, train_y.shape[1]], name='labels'
 
 fc1 = tf.contrib.layers.fully_connected(inputs_,
                                         unit_num,
-                                        weights_initializer=tf.truncated_normal_initializer(stddev=0.1),
+                                        weights_initializer=tf.truncated_normal_initializer(stddev=2 / math.sqrt(unit_num)),
+                                        #  weights_initializer=tf.truncated_normal_initializer(stddev=0.1),
                                         biases_initializer=tf.zeros_initializer())
 fc1 = tf.nn.dropout(fc1, keep_prob=keep_prob)
 
 fc2 = tf.contrib.layers.fully_connected(fc1,
                                         int(unit_num / 2),
-                                        weights_initializer=tf.truncated_normal_initializer(stddev=0.1),
+                                        weights_initializer=tf.truncated_normal_initializer(stddev=2 / math.sqrt(unit_num / 2)),
+                                        #  weights_initializer=tf.truncated_normal_initializer(stddev=0.1),
                                         biases_initializer=tf.zeros_initializer())
 fc2 = tf.nn.dropout(fc2, keep_prob=keep_prob)
 
 fc3 = tf.contrib.layers.fully_connected(fc2,
                                         int(unit_num / 4),
-                                        weights_initializer=tf.truncated_normal_initializer(stddev=0.1),
+                                        weights_initializer=tf.truncated_normal_initializer(stddev=2 / math.sqrt(unit_num / 4)),
+                                        #  weights_initializer=tf.truncated_normal_initializer(stddev=0.1),
                                         biases_initializer=tf.zeros_initializer())
 fc3 = tf.nn.dropout(fc3, keep_prob=keep_prob)
 
